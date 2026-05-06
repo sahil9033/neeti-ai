@@ -1,0 +1,9 @@
+services:
+  - type: web_service
+    name: neeti-backend
+    env: node
+    plan: free
+    root: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    autoDeploy: true
