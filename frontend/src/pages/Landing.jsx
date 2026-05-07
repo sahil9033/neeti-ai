@@ -31,9 +31,16 @@ export default function Landing() {
           <span className="eyebrow">NEETI</span>
           <h1>Ancient Wisdom. Modern Conflicts.</h1>
           <p className="hero-copy">Activate the conflict engine and receive strategy, empathy, and fairness in one intelligent response.</p>
-          <button className="button button-primary" onClick={() => navigate(user ? '/dashboard' : '/auth')}>
-            Resolve a Conflict
-          </button>
+          <div className="hero-actions">
+            <button className="button button-primary" onClick={() => navigate(user ? '/dashboard' : '/auth')}>
+              Resolve a Conflict
+            </button>
+            {user && (
+              <button className="button button-secondary" onClick={() => navigate('/test')}>
+                Test NEETI
+              </button>
+            )}
+          </div>
         </div>
       </section>
 

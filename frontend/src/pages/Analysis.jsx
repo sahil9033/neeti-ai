@@ -49,6 +49,15 @@ export default function Analysis() {
     mediator: conflict.mediator
   };
 
+  const actionPlanItems = Array.isArray(conflict.actionPlan)
+    ? conflict.actionPlan
+    : typeof conflict.actionPlan === 'string'
+      ? conflict.actionPlan
+          .split(/\r?\n/)
+          .map((line) => line.replace(/^([\d]+[\.)]|[-*])\s*/, '').trim())
+          .filter(Boolean)
+      : [];
+
   return (
     <main className="page analysis-page">
       <div className="page-header">
@@ -77,8 +86,8 @@ export default function Analysis() {
       <div className="card action-card">
         <h2>Action Plan</h2>
         <ol>
-          {conflict.actionPlan ? (
-            conflict.actionPlan.map((step, index) => (
+          {actionPlanItems.length > 0 ? (
+            actionPlanItems.map((step, index) => (
               <li key={index}>{step}</li>
             ))
           ) : (

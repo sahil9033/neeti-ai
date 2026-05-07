@@ -15,6 +15,35 @@ const parseOpenRouterResponse = (response) => {
   );
 };
 
+const parseSummaryActionPlan = (text) => {
+  const normalized = String(text || '').trim();
+  if (!normalized) {
+    return { summary: '', actionPlan: [] };
+  }
+
+  const blocks = normalized.split(/\r?\n\s*\r?\n/).map((block) => block.trim()).filter(Boolean);
+  let summary = blocks[0] || '';
+  let actionPlanBlock = blocks.slice(1).join('\n').trim();
+
+  if (!actionPlanBlock) {
+    const lines = normalized.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    const listLines = lines.filter((line) => /^([\d]+[\.)]|[-*])\s+/.test(line));
+    if (listLines.length > 0) {
+      summary = lines.slice(0, lines.indexOf(listLines[0])).join(' ') || lines[0] || '';
+      actionPlanBlock = listLines.join('\n');
+    }
+  }
+
+  const actionPlan = actionPlanBlock
+    ? actionPlanBlock
+        .split(/\r?\n/)
+        .map((line) => line.replace(/^([\d]+[\.)]|[-*])\s*/, '').trim())
+        .filter(Boolean)
+    : [];
+
+  return { summary, actionPlan };
+};
+
 const openRouterCall = async (systemPrompt, userPrompt) => {
   const payload = {
     model: PRIMARY_MODEL,
@@ -28,7 +57,7 @@ const openRouterCall = async (systemPrompt, userPrompt) => {
   const headers = {
     Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
     'Content-Type': 'application/json',
-    'HTTP-Referer': 'http://localhost:3001',
+    'HTTP-Referer': 'https://charcha-ai-backend.onrender.com',
     'X-Title': 'NEETI'
   };
 
@@ -74,20 +103,13 @@ export const analyzeConflict = async (description, conflictType, tone) => {
     summaryPrompt
   );
 
-  const [summary, actionPlan] = summaryResponse.split(/\n{2,}|\r\n{2,}/).reduce(
-    (acc, block) => {
-      if (acc.length === 0) acc.push(block.trim());
-      else if (acc.length === 1) acc.push(block.trim());
-      return acc;
-    },
-    []
-  );
+  const { summary, actionPlan } = parseSummaryActionPlan(summaryResponse);
 
   return {
     chanakya,
     therapist,
     mediator,
     summary: summary || summaryResponse,
-    actionPlan: actionPlan || summaryResponse
+    actionPlan: actionPlan.length ? actionPlan : [summaryResponse]
   };
 };

@@ -11,6 +11,8 @@ import { auth } from './firebase';
 export default function AuthTest() {
   const [user, setUser] = useState(null);
   const [apiResponse, setApiResponse] = useState(null);
+  const [aiResponse, setAiResponse] = useState(null);
+  const [message, setMessage] = useState('Please summarize this conflict in one paragraph.');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -74,8 +76,29 @@ export default function AuthTest() {
     }
   };
 
+  const callAiTest = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/test`,
+        { message },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      setAiResponse(response.data);
+    } catch (err) {
+      setError(`AI test failed: ${err.response?.data?.error || err.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div style={{ padding: '40px', fontFamily: 'sans-serif', maxWidth: '600px', margin: '0 auto' }}>
+    <div style={{ padding: '40px', fontFamily: 'sans-serif', maxWidth: '680px', margin: '0 auto' }}>
       <h1>⚔️ NEETI — Auth Test</h1>
 
       {/* Auth Status */}
@@ -140,6 +163,31 @@ export default function AuthTest() {
         </div>
       )}
 
+      {/* AI Test */}
+      <div style={{ marginBottom: '30px', padding: '20px', backgroundColor: '#e3f2fd', borderRadius: '8px' }}>
+        <h2 style={{ marginTop: '0' }}>OpenRouter AI Test</h2>
+        <textarea
+          rows="4"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          style={{ width: '100%', padding: '12px', borderRadius: '6px', border: '1px solid #ccc', marginBottom: '15px' }}
+        />
+        <button
+          onClick={callAiTest}
+          disabled={loading}
+          style={{
+            padding: '10px 20px',
+            backgroundColor: loading ? '#ccc' : '#1976d2',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+          }}
+        >
+          {loading ? 'Calling AI...' : 'Call /api/test'}
+        </button>
+      </div>
+
       {/* Responses */}
       {apiResponse && (
         <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#d4edda', borderRadius: '8px', border: '1px solid #c3e6cb' }}>
@@ -154,6 +202,23 @@ export default function AuthTest() {
             }}
           >
             {JSON.stringify(apiResponse, null, 2)}
+          </pre>
+        </div>
+      )}
+
+      {aiResponse && (
+        <div style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#fff3cd', borderRadius: '8px', border: '1px solid #ffeeba', color: '#856404' }}>
+          <h3 style={{ marginTop: '0' }}>🤖 AI Response</h3>
+          <pre
+            style={{
+              backgroundColor: '#f8f9fa',
+              padding: '10px',
+              borderRadius: '4px',
+              overflowX: 'auto',
+              fontSize: '12px',
+            }}
+          >
+            {JSON.stringify(aiResponse, null, 2)}
           </pre>
         </div>
       )}

@@ -14,6 +14,7 @@ export default function Navbar() {
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/history">History</Link>
             <Link to="/settings">Settings</Link>
+            <Link to="/test">Test</Link>
           </>
         ) : (
           <Link to="/auth" className="button button-secondary">Login</Link>

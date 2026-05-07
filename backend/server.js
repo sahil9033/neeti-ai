@@ -2,16 +2,28 @@ import 'dotenv/config';
 import express from 'express';
 import axios from 'axios';
 import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { verifyAuth } from './middleware/auth.js';
 import conflictRoutes from './routes/conflict.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+const frontendDist = path.join(__dirname, '../frontend/dist');
+const frontendDistExists = fs.existsSync(frontendDist);
+
+if (frontendDistExists) {
+  app.use(express.static(frontendDist));
+}
+
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://neetii-ai.web.app',
-  'https://neetii-ai.firebaseapp.com'
+  'https://charcha-25e02.web.app',
+  'https://charcha-25e02.firebaseapp.com'
 ];
 
 app.use(cors({
@@ -53,7 +65,7 @@ app.post('/api/test', async (req, res) => {
         headers: {
           'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'http://localhost:3001',
+          'HTTP-Referer': 'https://charcha-ai-backend.onrender.com',
           'X-Title': 'NEETI'
         }
       }
@@ -85,5 +97,14 @@ app.post('/api/protected-test', verifyAuth, (req, res) => {
 });
 
 app.use('/api/conflict', conflictRoutes);
+
+if (frontendDistExists) {
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api') || req.path === '/health') {
+      return res.status(404).json({ success: false, error: 'Not found' });
+    }
+    res.sendFile(path.join(frontendDist, 'index.html'));
+  });
+}
 
 app.listen(PORT, () => console.log(`NEETI backend running on port ${PORT}`));

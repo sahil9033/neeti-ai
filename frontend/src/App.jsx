@@ -9,6 +9,7 @@ import NewConflict from './pages/NewConflict';
 import Analysis from './pages/Analysis';
 import History from './pages/History';
 import Settings from './pages/Settings';
+import AuthTest from './AuthTest.jsx';
 import './App.css';
 
 export default function App() {
@@ -60,6 +61,7 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/test" element={<AuthTest />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>

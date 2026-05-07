@@ -18,9 +18,14 @@ export default function Dashboard() {
           <p className="eyebrow">Welcome</p>
           <h1>Namaste, {user.displayName || user.email?.split('@')[0] || 'Neeti User'}</h1>
         </div>
-        <button className="button button-primary" onClick={() => navigate('/conflict/new')}>
-          Resolve New Conflict
-        </button>
+        <div className="dashboard-actions">
+          <button className="button button-primary" onClick={() => navigate('/conflict/new')}>
+            Resolve New Conflict
+          </button>
+          <button className="button button-secondary" onClick={() => navigate('/test')}>
+            Test NEETI
+          </button>
+        </div>
       </div>
 
       <section className="section">
