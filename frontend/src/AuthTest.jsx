@@ -58,8 +58,10 @@ export default function AuthTest() {
       setLoading(true);
       setError(null);
       const token = await user.getIdToken();
+      const isProd = import.meta.env.MODE === 'production';
+      const baseURL = isProd ? '/_/backend' : (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001');
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/protected-test`,
+        `${baseURL}/api/protected-test`,
         {},
         {
           headers: {
@@ -80,8 +82,10 @@ export default function AuthTest() {
     try {
       setLoading(true);
       setError(null);
+      const isProd = import.meta.env.MODE === 'production';
+      const baseURL = isProd ? '/_/backend' : (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001');
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/test`,
+        `${baseURL}/api/test`,
         { message },
         {
           headers: {

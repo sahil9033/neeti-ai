@@ -1,8 +1,13 @@
 import axios from 'axios';
 import { auth } from '../firebase';
 
+const isProd = import.meta.env.MODE === 'production';
+const baseURL = isProd 
+  ? '/_/backend' 
+  : (import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001');
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL || import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  baseURL,
   timeout: 30000,
 });
 
