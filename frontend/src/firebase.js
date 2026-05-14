@@ -13,6 +13,14 @@ const firebaseConfig = {
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
+if (!firebaseConfig.apiKey) {
+  console.error(
+    '🔥 FIREBASE CONFIGURATION ERROR: \n' +
+    'The VITE_FIREBASE_API_KEY environment variable is missing. \n' +
+    'If you are on Vercel, make sure you have added all VITE_FIREBASE_* variables in the Project Settings -> Environment Variables.'
+  );
+}
+
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
