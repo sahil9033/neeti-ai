@@ -13,16 +13,26 @@ const firebaseConfig = {
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
 };
 
-if (!firebaseConfig.apiKey) {
-  console.error(
-    '🔥 FIREBASE CONFIGURATION ERROR: \n' +
-    'The VITE_FIREBASE_API_KEY environment variable is missing. \n' +
-    'If you are on Vercel, make sure you have added all VITE_FIREBASE_* variables in the Project Settings -> Environment Variables.'
-  );
-}
+let app;
+let auth;
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
+try {
+  if (!firebaseConfig.apiKey) {
+    console.error('🔥 FIREBASE CONFIGURATION ERROR: VITE_FIREBASE_API_KEY is missing.');
+  }
+  
+  // Provide a dummy config if missing to prevent fatal crash, 
+  // though auth will fail when used, the app UI will at least load!
+  app = initializeApp(firebaseConfig.apiKey ? firebaseConfig : {
+    apiKey: "dummy-key",
+    authDomain: "dummy.firebaseapp.com",
+    projectId: "dummy-project"
+  });
+  
+  auth = getAuth(app);
+} catch (error) {
+  console.error("🔥 Firebase init failed:", error);
+}
 
 let analytics = null;
 
