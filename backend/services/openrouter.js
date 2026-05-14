@@ -44,6 +44,13 @@ const parseSummaryActionPlan = (text) => {
   return { summary, actionPlan };
 };
 
+const openRouterHeaders = () => ({
+  Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+  'Content-Type': 'application/json',
+  'HTTP-Referer': 'https://neeti-ai.vercel.app',
+  'X-Title': 'NEETI'
+});
+
 const openRouterCall = async (systemPrompt, userPrompt) => {
   const payload = {
     model: PRIMARY_MODEL,
@@ -54,12 +61,7 @@ const openRouterCall = async (systemPrompt, userPrompt) => {
     max_tokens: 700
   };
 
-  const headers = {
-    Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-    'Content-Type': 'application/json',
-    'HTTP-Referer': 'https://charcha-ai-backend.onrender.com',
-    'X-Title': 'NEETI'
-  };
+  const headers = openRouterHeaders();
 
   try {
     const response = await axios.post(OPENROUTER_URL, payload, { headers });
@@ -81,19 +83,40 @@ const openRouterCall = async (systemPrompt, userPrompt) => {
   }
 };
 
+// System prompts for each mode
+const SYSTEM_PROMPTS = {
+  chanakya: `You are NEETI in Chanakya Mode. Think like Chanakya — India's greatest strategist and author of the Arthashastra. Be cold, calculated, pragmatic. You do not care about feelings — you care about outcomes and leverage. Analyze the conflict and provide:
+1. The power dynamics at play
+2. The user's strategic position
+3. The calculated next move that maximizes the user's position
+4. What the other party truly wants and fears
+5. One Chanakya principle that applies
+Be direct. Be ruthless in analysis. Be wise in strategy.`,
+
+  therapist: `You are NEETI in Therapist Mode. Think like a licensed therapist with expertise in CBT and attachment theory. Be empathetic and non-judgmental. Analyze the conflict and provide:
+1. The emotional root cause beneath the surface conflict
+2. What the user is truly feeling and why
+3. What the other party is likely feeling
+4. The psychological pattern that created this conflict
+5. A healing path that addresses the real issue
+Be warm but honest.`,
+
+  mediator: `You are NEETI in Mediator Mode. Be a neutral wise mediator who sees all sides with equal fairness. Draw from Stoicism and interest-based negotiation. Analyze the conflict and provide:
+1. A fair summary of both sides valid points
+2. The shared interests beneath opposing positions
+3. A concrete compromise or resolution path
+4. What both parties must give up and gain
+5. A long-term perspective on this conflict
+Be fair. Be balanced. Be wise.`
+};
+
 export const analyzeConflict = async (description, conflictType, tone) => {
   const userPrompt = `Description: ${description}\nConflict type: ${conflictType}\nTone: ${tone}\nPlease analyze the conflict in detail.`;
 
-  const chanakyaPrompt = `You are NEETI in Chanakya Mode. Think like Chanakya — India's greatest strategist and author of the Arthashastra. Be cold, calculated, pragmatic. You do not care about feelings — you care about outcomes and leverage. Analyze the conflict and provide:\n1. The power dynamics at play\n2. The user's strategic position\n3. The calculated next move that maximizes the user's position\n4. What the other party truly wants and fears\n5. One Chanakya principle that applies\nBe direct. Be ruthless in analysis. Be wise in strategy.`;
-
-  const therapistPrompt = `You are NEETI in Therapist Mode. Think like a licensed therapist with expertise in CBT and attachment theory. Be empathetic and non-judgmental. Analyze the conflict and provide:\n1. The emotional root cause beneath the surface conflict\n2. What the user is truly feeling and why\n3. What the other party is likely feeling\n4. The psychological pattern that created this conflict\n5. A healing path that addresses the real issue\nBe warm but honest.`;
-
-  const mediatorPrompt = `You are NEETI in Mediator Mode. Be a neutral wise mediator who sees all sides with equal fairness. Draw from Stoicism and interest-based negotiation. Analyze the conflict and provide:\n1. A fair summary of both sides valid points\n2. The shared interests beneath opposing positions\n3. A concrete compromise or resolution path\n4. What both parties must give up and gain\n5. A long-term perspective on this conflict\nBe fair. Be balanced. Be wise.`;
-
   const [chanakya, therapist, mediator] = await Promise.all([
-    openRouterCall(chanakyaPrompt, userPrompt),
-    openRouterCall(therapistPrompt, userPrompt),
-    openRouterCall(mediatorPrompt, userPrompt)
+    openRouterCall(SYSTEM_PROMPTS.chanakya, userPrompt),
+    openRouterCall(SYSTEM_PROMPTS.therapist, userPrompt),
+    openRouterCall(SYSTEM_PROMPTS.mediator, userPrompt)
   ]);
 
   const summaryPrompt = `Based on the three analyses below, generate a 2-sentence summary of the conflict and a 5-step action plan that combines the strategic, emotional, and mediated perspectives.\n\nChanakya:\n${chanakya}\n\nTherapist:\n${therapist}\n\nMediator:\n${mediator}`;
@@ -112,4 +135,10 @@ export const analyzeConflict = async (description, conflictType, tone) => {
     summary: summary || summaryResponse,
     actionPlan: actionPlan.length ? actionPlan : [summaryResponse]
   };
+};
+
+export const followUpCall = async (mode, originalDescription, followUpQuestion) => {
+  const systemPrompt = SYSTEM_PROMPTS[mode] || SYSTEM_PROMPTS.mediator;
+  const userPrompt = `Original conflict:\n${originalDescription}\n\nFollow-up question:\n${followUpQuestion}`;
+  return openRouterCall(systemPrompt, userPrompt);
 };

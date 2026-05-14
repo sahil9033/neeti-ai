@@ -6,9 +6,9 @@ export default function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="page shell">
-        <div className="loader" />
-        <p>Checking authentication...</p>
+      <div className="spinner-container">
+        <div className="om-spinner">ॐ</div>
+        <p className="loading-text">Awakening NEETI...</p>
       </div>
     );
   }

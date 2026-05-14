@@ -1,26 +1,23 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Navbar() {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   return (
     <header className="navbar">
-      <div className="brand" onClick={() => navigate('/')}>NEETI</div>
+      <Link to="/" className="brand">NEETI</Link>
       <nav className="nav-links">
         {user ? (
           <>
             <Link to="/dashboard">Dashboard</Link>
             <Link to="/history">History</Link>
-            <Link to="/settings">Settings</Link>
-            <Link to="/test">Test</Link>
           </>
         ) : (
-          <Link to="/auth" className="button button-secondary">Login</Link>
+          <Link to="/auth" className="btn btn-secondary btn-sm">Login</Link>
         )}
       </nav>
-      {user && <div className="user-chip">{user.email?.split('@')[0] || 'User'}</div>}
+      {user && <div className="user-chip">{user.displayName || user.email?.split('@')[0] || 'User'}</div>}
     </header>
   );
 }

@@ -1,68 +1,78 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const features = [
-  { title: 'Chanakya Mode', description: 'Strategic, ruthless, outcome-focused analysis.' },
-  { title: 'Therapist Mode', description: 'Empathetic insights into emotions and healing.' },
-  { title: 'Mediator Mode', description: 'Balanced resolutions that keep both sides aligned.' }
+  { icon: '⚔️', title: 'Chanakya Mode', desc: 'Cold, strategic, outcome-focused. The Arthashastra applied to your life.' },
+  { icon: '💙', title: 'Therapist Mode', desc: 'Empathetic insights into emotions, patterns, and paths to healing.' },
+  { icon: '⚖️', title: 'Mediator Mode', desc: 'Balanced resolutions drawing from Stoicism and negotiation theory.' },
 ];
 
 const steps = [
-  { label: 'Describe', description: 'Explain your conflict clearly.' },
-  { label: 'Analyze', description: 'NEETI evaluates strategy, feelings, and resolution.' },
-  { label: 'Resolve', description: 'Get a clear plan and path forward.' }
+  { num: 1, title: 'Describe', desc: 'Tell NEETI about your conflict — workplace, family, relationship, or any kind.' },
+  { num: 2, title: 'Analyze', desc: 'Three AI perspectives evaluate your situation simultaneously in parallel.' },
+  { num: 3, title: 'Resolve', desc: 'Get a clear action plan combining strategy, empathy, and fairness.' },
 ];
 
 export default function Landing() {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
-    }
-  }, [user, navigate]);
+  const target = user ? '/dashboard' : '/auth';
 
   return (
     <main className="page landing">
-      <section className="hero-panel">
-        <div>
-          <span className="eyebrow">NEETI</span>
-          <h1>Ancient Wisdom. Modern Conflicts.</h1>
-          <p className="hero-copy">Activate the conflict engine and receive strategy, empathy, and fairness in one intelligent response.</p>
-          <div className="hero-actions">
-            <button className="button button-primary" onClick={() => navigate(user ? '/dashboard' : '/auth')}>
-              Resolve a Conflict
-            </button>
-            {user && (
-              <button className="button button-secondary" onClick={() => navigate('/test')}>
-                Test NEETI
-              </button>
-            )}
-          </div>
+      <section className="hero">
+        <span className="eyebrow">AI Conflict Resolution</span>
+        <h1>
+          <span className="accent">Ancient Wisdom.</span><br />
+          Modern Conflicts.
+        </h1>
+        <p className="hero-sub">
+          Three AI perspectives — a strategist, a therapist, and a mediator — analyze your conflict and deliver a clear path forward.
+        </p>
+        <div className="hero-actions">
+          <button className="btn btn-primary" onClick={() => navigate(target)}>
+            Resolve a Conflict ⚔️
+          </button>
+          <button className="btn btn-secondary" onClick={() => navigate(target)}>
+            Learn More
+          </button>
         </div>
       </section>
 
-      <section className="section cards-grid">
-        {features.map((feature) => (
-          <article key={feature.title} className="card">
-            <h3>{feature.title}</h3>
-            <p>{feature.description}</p>
-          </article>
-        ))}
+      <section className="features-section">
+        <h2>Three Modes. One Resolution.</h2>
+        <div className="grid-3">
+          {features.map((f) => (
+            <article key={f.title} className="card card-glow feature-card animate-in">
+              <div className="icon">{f.icon}</div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
-      <section className="section steps-grid">
+      <section className="steps-section">
         <h2>How It Works</h2>
-        <div className="step-cards">
-          {steps.map((step) => (
-            <div key={step.label} className="card step-card">
-              <strong>{step.label}</strong>
-              <p>{step.description}</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {steps.map((s) => (
+            <div key={s.num} className="card step-card">
+              <div className="step-num">{s.num}</div>
+              <div>
+                <strong>{s.title}</strong>
+                <p style={{ color: 'var(--text2)', marginTop: '4px', fontSize: '0.9rem' }}>{s.desc}</p>
+              </div>
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="cta-banner animate-in">
+        <h2>Ready to resolve your conflict?</h2>
+        <p>Join NEETI and get AI-powered guidance rooted in ancient wisdom.</p>
+        <button className="btn btn-primary" onClick={() => navigate(target)}>
+          Start Resolving — Free
+        </button>
       </section>
     </main>
   );

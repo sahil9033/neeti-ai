@@ -1,77 +1,108 @@
-﻿:root {
-  color: #e8eaf0;
-  background: #0a0e1a;
-  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+/* ═══════════════════════════════════════════
+   NEETI Design System — CSS Variables & Reset
+   ═══════════════════════════════════════════ */
+
+:root {
+  /* Backgrounds */
+  --bg:        #0A0E1A;
+  --bg2:       #111827;
+  --bg3:       #1a1f35;
+
+  /* Glass */
+  --glass:     rgba(255, 255, 255, 0.03);
+  --glass2:    rgba(255, 255, 255, 0.06);
+  --glass3:    rgba(255, 255, 255, 0.09);
+
+  /* Borders */
+  --border:    rgba(255, 255, 255, 0.07);
+  --border2:   rgba(255, 255, 255, 0.12);
+  --border3:   rgba(255, 255, 255, 0.18);
+
+  /* Accent colors */
+  --crimson:   #c0392b;
+  --crimson-glow: rgba(192, 57, 43, 0.25);
+  --gold:      #f39c12;
+  --gold-glow: rgba(243, 156, 18, 0.18);
+  --emerald:   #27ae60;
+  --sapphire:  #2980b9;
+
+  /* Text */
+  --text:      #e8eaf0;
+  --text2:     rgba(232, 234, 240, 0.65);
+  --text3:     rgba(232, 234, 240, 0.38);
+
+  /* Typography */
+  --font-body:    'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Sora', 'Space Grotesk', system-ui, sans-serif;
+
+  /* Radius */
+  --radius-sm:  8px;
+  --radius-md:  14px;
+  --radius-lg:  20px;
+  --radius-xl:  28px;
+  --radius-pill: 999px;
+
+  /* Transitions */
+  --ease:      cubic-bezier(0.4, 0, 0.2, 1);
+  --duration:  0.25s;
+
+  /* Sidebar */
+  --sidebar-w: 260px;
+
+  color: var(--text);
+  background: var(--bg);
+  font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.6;
   letter-spacing: 0.01em;
-  margin: 0;
 }
 
-* {
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
-html,
-body,
-#root {
-  min-height: 100%;
+html, body, #root {
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  margin: 0;
-  background: radial-gradient(circle at top left, rgba(243, 156, 18, 0.12), transparent 26%),
-    radial-gradient(circle at bottom right, rgba(192, 57, 43, 0.12), transparent 20%),
-    #0a0e1a;
-  color: #e8eaf0;
+  background:
+    radial-gradient(ellipse at 15% 5%, rgba(243, 156, 18, 0.08), transparent 45%),
+    radial-gradient(ellipse at 85% 95%, rgba(192, 57, 43, 0.06), transparent 40%),
+    var(--bg);
+  color: var(--text);
 }
 
-button,
-input,
-textarea {
-  font: inherit;
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.15;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font: inherit; }
+input, textarea, select { font: inherit; color: var(--text); }
+ul, ol { list-style: none; }
+img { max-width: 100%; display: block; }
+
+::selection {
+  background: var(--crimson);
+  color: white;
 }
 
-button {
-  cursor: pointer;
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--glass3);
+  border-radius: 3px;
 }
+::-webkit-scrollbar-thumb:hover { background: var(--border3); }
 
-input,
-textarea {
-  color: #e8eaf0;
-}
-
-#root {
-  width: min(100%, 1200px);
-  margin: 0 auto;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin: 0;
-}
-
-p {
-  margin: 0;
-}
-
-ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-@media (max-width: 900px) {
-  :root {
-    font-size: 15px;
-  }
+@media (max-width: 768px) {
+  :root { font-size: 15px; }
 }
