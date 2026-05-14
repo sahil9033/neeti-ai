@@ -71,31 +71,43 @@ const parseServiceAccount = (content, source) => {
   }
 };
 
-if (process.env.FIREBASE_SERVICE_ACCOUNT) {
-  try {
-    serviceAccount = parseServiceAccount(process.env.FIREBASE_SERVICE_ACCOUNT, 'environment variable');
-  } catch (err) {
-    throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is invalid JSON.');
+let adminApp = null;
+let db = null;
+let initError = null;
+
+try {
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    try {
+      serviceAccount = parseServiceAccount(process.env.FIREBASE_SERVICE_ACCOUNT, 'environment variable');
+    } catch (err) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT environment variable is invalid JSON. Details: ' + err.message);
+    }
+  } else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+    try {
+      const raw = fs.readFileSync(process.env.FIREBASE_SERVICE_ACCOUNT_PATH, 'utf-8');
+      serviceAccount = parseServiceAccount(raw, 'secret file');
+    } catch (err) {
+      throw new Error('Unable to parse Firebase secret file. Details: ' + err.message);
+    }
+  } else {
+    throw new Error('Either FIREBASE_SERVICE_ACCOUNT or FIREBASE_SERVICE_ACCOUNT_PATH is required.');
   }
-} else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-  try {
-    const raw = fs.readFileSync(process.env.FIREBASE_SERVICE_ACCOUNT_PATH, 'utf-8');
-    serviceAccount = parseServiceAccount(raw, 'secret file');
-  } catch (err) {
-    throw new Error('Unable to parse Firebase secret file. Ensure it contains ONLY the JSON block with no comments or extra text.');
+
+  // Initialize Firebase Admin SDK
+  if (!admin.apps.length) {
+    adminApp = admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount),
+      databaseURL: process.env.FIREBASE_DATABASE_URL || "https://charcha-25e02-default-rtdb.asia-southeast1.firebasedatabase.app"
+    });
+  } else {
+    adminApp = admin.apps[0];
   }
-} else {
-  throw new Error('Either FIREBASE_SERVICE_ACCOUNT or FIREBASE_SERVICE_ACCOUNT_PATH is required.');
+  db = admin.firestore();
+} catch (error) {
+  console.error('[FIREBASE INIT FATAL ERROR]', error.message);
+  initError = error.message;
 }
 
-// Initialize Firebase Admin SDK
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: process.env.FIREBASE_DATABASE_URL || "https://charcha-25e02-default-rtdb.asia-southeast1.firebasedatabase.app"
-  });
-}
-
-const db = admin.firestore();
-
-export { admin, db };
+// Export a proxy or just the db. If routes use db when it's null, they will crash.
+// Let's export a getter or just the objects.
+export { admin, db, initError };

@@ -2,7 +2,7 @@ import express from 'express';
 import rateLimit from 'express-rate-limit';
 import { verifyAuth } from '../middleware/auth.js';
 import { analyzeConflict, followUpCall } from '../services/openrouter.js';
-import { db, admin } from '../services/firebase.js';
+import { db, admin, initError } from '../services/firebase.js';
 
 const router = express.Router();
 
@@ -42,6 +42,10 @@ router.post('/analyze', verifyAuth, analyzeLimiter, async (req, res) => {
     tone = 'balanced';
   }
 
+  if (initError || !db) {
+    return res.status(500).json({ success: false, error: 'Database not initialized: ' + (initError || 'Unknown error') });
+  }
+
   try {
     const analysis = await analyzeConflict(description, conflictType, tone);
     const createdAt = admin.firestore.FieldValue.serverTimestamp();
@@ -67,6 +71,10 @@ router.post('/analyze', verifyAuth, analyzeLimiter, async (req, res) => {
 
 // GET /api/conflict/history
 router.get('/history', verifyAuth, async (req, res) => {
+  if (initError || !db) {
+    return res.status(500).json({ success: false, error: 'Database not initialized: ' + (initError || 'Unknown error') });
+  }
+
   try {
     const snapshot = await db.collection('conflicts')
       .where('userId', '==', req.user.uid)
@@ -83,6 +91,10 @@ router.get('/history', verifyAuth, async (req, res) => {
 
 // GET /api/conflict/:id
 router.get('/:id', verifyAuth, async (req, res) => {
+  if (initError || !db) {
+    return res.status(500).json({ success: false, error: 'Database not initialized: ' + (initError || 'Unknown error') });
+  }
+
   try {
     const docRef = db.collection('conflicts').doc(req.params.id);
     const doc = await docRef.get();
@@ -105,6 +117,10 @@ router.get('/:id', verifyAuth, async (req, res) => {
 
 // DELETE /api/conflict/:id
 router.delete('/:id', verifyAuth, async (req, res) => {
+  if (initError || !db) {
+    return res.status(500).json({ success: false, error: 'Database not initialized: ' + (initError || 'Unknown error') });
+  }
+
   try {
     const docRef = db.collection('conflicts').doc(req.params.id);
     const doc = await docRef.get();
@@ -138,6 +154,10 @@ router.post('/:id/followup', verifyAuth, async (req, res) => {
   }
   if (!VALID_MODES.includes(mode)) {
     mode = 'mediator';
+  }
+
+  if (initError || !db) {
+    return res.status(500).json({ success: false, error: 'Database not initialized: ' + (initError || 'Unknown error') });
   }
 
   try {
