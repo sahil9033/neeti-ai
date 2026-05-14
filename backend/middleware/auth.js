@@ -1,7 +1,11 @@
-import { admin } from '../services/firebase.js';
+import { admin, initError } from '../services/firebase.js';
 
 // Middleware to verify Firebase ID token
 export const verifyAuth = async (req, res, next) => {
+  if (initError) {
+    return res.status(500).json({ success: false, error: 'Server Auth Not Initialized: ' + initError });
+  }
+
   const authHeader = req.headers.authorization;
   
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
